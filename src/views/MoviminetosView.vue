@@ -7,8 +7,9 @@
                 <!-- Selector de Producto -->
                 <v-select color="indigo" label="Producto" 
                     :items="productos" item-value="id" item-title="nombre" 
-                    v-model="movimiento.fk_productos">
-                </v-select>
+                    v-model="movimiento.fk_productos"
+                    :item-props="item => ({ title: item.nombre })"
+                ></v-select>
 
                 <v-text-field label="Cantidad" type="number"
                     color="indigo" clearable placeholder="Cantidad" 
@@ -57,6 +58,28 @@
 
             <v-col cols="12" md="2">
                 <v-btn color="indigo" @click="limpiarFiltros">Limpiar Filtros</v-btn>
+            </v-col>
+            <v-col cols="12" md="3">
+                <v-btn-group>
+                    <v-btn 
+                        v-if="filtroFecha || filtroProducto"
+                        :color="obtenerColorBotonPDF" 
+                        prepend-icon="mdi-file-pdf" 
+                        @click="generarPDFSegunFiltro"
+                        class="text-white"
+                    >
+                        {{ textoBotonPDF }}
+                    </v-btn>
+                    <v-btn 
+                        v-if="!filtroFecha && !filtroProducto"
+                        color="red" 
+                        prepend-icon="mdi-file-pdf" 
+                        @click="generarPDFInventario"
+                        class="text-white"
+                    >
+                        Inventario Total
+                    </v-btn>
+                </v-btn-group>
             </v-col>
         </v-row>
 
@@ -115,8 +138,9 @@
             <v-card-text>
                 <v-select color="indigo" label="Producto"  item-value="id"
                     :items="productos"  item-title="nombre" 
-                    v-model="datos.fk_productos">
-                </v-select>
+                    v-model="datos.fk_productos"
+                    :item-props="item => ({ title: item.nombre })"
+                ></v-select>
 
                 <v-text-field label="Cantidad" type="number"
                     color="indigo" clearable placeholder="Cantidad" 
@@ -149,13 +173,14 @@ export default {
     data() {
         return {
             productos: [],
-            movimiento: { fk_productos: '', cantidad: 0, tipoMov: 'Entrada', fecha: '' }, // Inicializar el formulario
+            movimiento: { fk_productos: '', cantidad: 0, tipoMov: 'Entrada', fecha: '' },
             movimientos: [],
             datos: {},
             filtroProducto: null,
             filtroFecha: null,
             dialogOne: false,
             dialogTwo: false,
+            productoSeleccionado: null,
             config: { headers: { 'Authorization': 'Bearer ' + this.$store.getters.getToken } }
         };
     },
@@ -166,6 +191,16 @@ export default {
                 const coincideFecha = this.filtroFecha ? movimiento.fecha === this.filtroFecha : true;
                 return coincideProducto && coincideFecha;
             });
+        },
+        textoBotonPDF() {
+            if (this.filtroFecha && !this.filtroProducto) return 'PDF por Fecha ';
+            if (this.filtroProducto && !this.filtroFecha) return 'PDF por Producto';
+            if (this.filtroProducto && this.filtroFecha) return 'PDF por Filtros';
+            return 'Selecciona un Filtro';
+        },
+        obtenerColorBotonPDF() {
+            if (this.filtroFecha || this.filtroProducto) return 'red';
+            return 'grey';
         }
     },
     methods: {
@@ -286,17 +321,187 @@ export default {
                 }
             });
         },
-       
+        async generarPDF() {
+            try {
+                // Construir los parámetros de filtro
+                const params = new URLSearchParams();
+                if (this.filtroProducto) params.append('producto', this.filtroProducto);
+                if (this.filtroFecha) params.append('fecha', this.filtroFecha);
+
+                // Realizar la petición al backend para generar el PDF
+                const response = await axios.get(`${ruta}/api/movimientos/reporte?${params.toString()}`, {
+                    ...this.config,
+                    responseType: 'blob' // Importante para recibir el PDF
+                });
+
+                // Crear un blob con la respuesta
+                const blob = new Blob([response.data], { type: 'application/pdf' });
+                const url = window.URL.createObjectURL(blob);
+                
+                // Crear un enlace temporal y hacer clic en él para descargar
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `reporte-movimientos${this.filtroFecha ? '-' + this.filtroFecha : ''}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                
+                // Limpiar
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(link);
+
+                this.getAlert('Reporte PDF generado exitosamente');
+            } catch (error) {
+                console.error('Error al generar el PDF:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo generar el reporte PDF'
+                });
+            }
+        },
+        async generarPDFDiario() {
+            try {
+                if (!this.filtroFecha) {
+                    this.getAlert('Selecciona una fecha para generar el reporte');
+                    return;
+                }
+
+                const response = await axios.get(`${ruta}/api/reportes/movimientos-diarios`, {
+                    ...this.config,
+                    params: { fecha: this.filtroFecha },
+                    responseType: 'blob'
+                });
+
+                // Crear y descargar el PDF
+                const blob = new Blob([response.data], { type: 'application/pdf' });
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `reporte-movimientos-${this.filtroFecha}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                
+                // Limpiar
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(link);
+
+                this.getAlert('Reporte PDF generado exitosamente');
+            } catch (error) {
+                console.error('Error al generar el PDF:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo generar el reporte PDF'
+                });
+            }
+        },
+
+        async generarPDFProducto() {
+            try {
+                if (!this.filtroProducto) {
+                    this.getAlert('Selecciona un producto para generar el reporte');
+                    return;
+                }
+
+                const response = await axios.get(`${ruta}/api/reportes/movimientos-por-producto`, {
+                    ...this.config,
+                    params: { producto_id: this.filtroProducto },
+                    responseType: 'blob'
+                });
+
+                // Crear y descargar el PDF
+                const blob = new Blob([response.data], { type: 'application/pdf' });
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `reporte-producto-${this.filtroProducto}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                
+                // Limpiar
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(link);
+
+                this.getAlert('Reporte PDF generado exitosamente');
+            } catch (error) {
+                console.error('Error al generar el PDF:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo generar el reporte PDF'
+                });
+            }
+        },
+
+        async generarPDFInventario() {
+            try {
+                const response = await axios.get(`${ruta}/api/reportes/inventario-actual`, {
+                    ...this.config,
+                    responseType: 'blob'
+                });
+
+                // Crear y descargar el PDF
+                const blob = new Blob([response.data], { type: 'application/pdf' });
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `reporte-inventario-${new Date().toISOString().split('T')[0]}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                
+                // Limpiar
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(link);
+
+                this.getAlert('Reporte PDF generado exitosamente');
+            } catch (error) {
+                console.error('Error al generar el PDF:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo generar el reporte PDF'
+                });
+            }
+        },
+        async generarPDFSegunFiltro() {
+            if (this.filtroFecha && !this.filtroProducto) {
+                await this.generarPDFDiario();
+            } else if (this.filtroProducto && !this.filtroFecha) {
+                await this.generarPDFProducto();
+            } else if (!this.filtroFecha && !this.filtroProducto) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Selecciona un filtro',
+                    text: 'Debes seleccionar una fecha o un producto para generar el reporte'
+                });
+            }
+        },
     },
+    watch: {
+        productos(newProductos) {
+            const productId = this.$route.params.id;
+            console.log('Product ID from route:', productId);
+            if (productId && newProductos.length > 0) {
+                this.movimiento.fk_productos = productId;
+            }
+        }
+    },
+    
     created() {
+        const producto = JSON.parse(localStorage.getItem('productoSeleccionado'));
+        if (producto) {
+            this.movimiento.fk_productos = producto.id;
+        }
         this.obtenerProductos();
         this.obtenerMovimientos();
     }
+
 };
 </script>
 
 <style scoped>
 .swal2-confirm {
     color: white !important;
+    
 }
 </style>

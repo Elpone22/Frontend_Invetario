@@ -78,12 +78,13 @@ export default {
         login(){ 
             axios.post('http://127.0.0.1:8000/api/user/login', this.usuario) 
             .then(response => { 
-                // console.log(response) 
+                console.log('Respuesta del servidor:', response.data);
                 if(response.status==200){     
                     // Se extrae el usuario y token de  
                     // la respuesta que retorna el endpoint de login                 
                     let datos = { 
                         usuario: response.data.data.name, 
+                        rol: response.data.data.rol, 
                         token: response.data.token 
                     } 
                     // Guardando datos en el storage y el state 

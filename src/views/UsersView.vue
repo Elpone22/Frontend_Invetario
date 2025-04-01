@@ -9,7 +9,7 @@
                 v-model="user.name"
                 ></v-text-field>
 
-                <v-select label="Rol" maxlength="50" counter :items="['Admin', 'Empleado']"
+                <v-select label="Rol" maxlength="50" counter :items="['admin', 'empleado']"
                     color="indigo" clearable placeholder="Rol del usuario" 
                      v-model="user.rol">
                 </v-select>
@@ -84,7 +84,7 @@
                 v-model="datos.name"
                 ></v-text-field>
 
-                <v-select label="Rol" maxlength="50" counter :items="['Admin', 'Empleado']"
+                <v-select label="Rol" maxlength="50" counter :items="['admin', 'empleado']"
                 color="indigo"  clearable placeholder="Rol del usuario" 
                 v-model="datos.rol">
                 </v-select>

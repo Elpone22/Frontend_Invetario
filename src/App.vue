@@ -23,39 +23,43 @@
             <v-list-item-title>Inicio</v-list-item-title>
           </v-list-item>
 
-          <!-- Solo el ADMIN puede ver Gestión -->
-          <v-list-group  value="Gestión">
-            <template #activator="{ props }">
-              <v-list-item v-bind="props">
-                <v-list-item-icon><v-icon>mdi-folder</v-icon></v-list-item-icon>
-                <v-list-item-title>Gestión</v-list-item-title>
+          <!-- Menú para administradores -->
+          <template v-if="$store.getters.getRol === 'admin'">
+            <v-list-group value="Gestión">
+              <template #activator="{ props }">
+                <v-list-item v-bind="props">
+                  <v-list-item-icon><v-icon>mdi-folder</v-icon></v-list-item-icon>
+                  <v-list-item-title>Gestión</v-list-item-title>
+                </v-list-item>
+              </template>
+              <v-list-item to="/marca">
+                <v-list-item-title>Marca</v-list-item-title>
               </v-list-item>
-            </template>
-            <v-list-item to="/marca">
-              <v-list-item-title>Marca</v-list-item-title>
-            </v-list-item>
-            <v-list-item to="/categoria">
-              <v-list-item-title>Categoría</v-list-item-title>
-            </v-list-item>
-            <v-list-item to="/empleados">
-              <v-list-item-title>Empleados</v-list-item-title>
-            </v-list-item>
-            <v-list-item to="/producto">
-              <v-list-item-title>Producto</v-list-item-title>
-            </v-list-item>
-            <v-list-item to="/users">
-              <v-list-item-title>Usuarios</v-list-item-title>
-            </v-list-item>
-            <v-list-item to="/Ver">
-              <v-list-item-title>Ver Productos</v-list-item-title>
-            </v-list-item>
-                 <!-- Movimientos (visible para todos los usuarios logueados) -->
+              <v-list-item to="/categoria">
+                <v-list-item-title>Categoría</v-list-item-title>
+              </v-list-item>
+              <v-list-item to="/empleados">
+                <v-list-item-title>Empleados</v-list-item-title>
+              </v-list-item>
+              <v-list-item to="/producto">
+                <v-list-item-title>Producto</v-list-item-title>
+              </v-list-item>
+              <v-list-item to="/users">
+                <v-list-item-title>Usuarios</v-list-item-title>
+              </v-list-item>
+            </v-list-group>
+          </template>
+
+          <!-- Menú para todos los usuarios -->
+          <v-list-item to="/Ver">
+            <v-list-item-icon><v-icon>mdi-eye</v-icon></v-list-item-icon>
+            <v-list-item-title>Ver Productos</v-list-item-title>
+          </v-list-item>
+
           <v-list-item to="/Movimientos">
+            <v-list-item-icon><v-icon>mdi-transfer</v-icon></v-list-item-icon>
             <v-list-item-title>Movimientos</v-list-item-title>
           </v-list-item>
-          </v-list-group>
-
-     
 
           <!-- Botón de Logout -->
           <v-list-item @click="logout">
@@ -91,14 +95,6 @@ export default {
     usuario() {
       return this.$store.getters.getUsuario;
     },
-    // Verificar si el usuario es admin
-    esAdmin() {
-      return this.usuario && this.usuario.rol === "admin";
-    },
-    // Verificar si el usuario es empleado
-    esEmpleado() {
-      return this.usuario && this.usuario.rol === "empleado";
-    },
   },
   methods: {
     logout() {
@@ -108,7 +104,9 @@ export default {
     validarAcceso() {
       let datos = localStorage.getItem("userData");
       if (datos) {
-        this.$store.dispatch("login", JSON.parse(datos));
+        const userData = JSON.parse(datos);
+        console.log('Datos del localStorage:', userData);
+        this.$store.dispatch("login", userData);
         this.$router.push("/welcome");
       } else {
         this.$router.push("/");
@@ -124,11 +122,10 @@ export default {
 <style scoped>
 .swal2-confirm {
     color: white !important;
-    
+    background-color: #6200ea !important;
 }
 .swal2-container {
   z-index: 9999 !important;
 }
-
 
 </style>
