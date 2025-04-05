@@ -57,6 +57,7 @@
  
 <script> 
 // Importar axios 
+const ruta = 'http://127.0.0.1:8000';
 import axios from 'axios' 
  
 export default { 
@@ -76,34 +77,50 @@ export default {
     methods: { 
         // Petición para realizar login 
         login(){ 
-            axios.post('http://127.0.0.1:8000/api/user/login', this.usuario) 
-            .then(response => { 
-                console.log('Respuesta del servidor:', response.data);
-                if(response.status==200){     
-                    // Se extrae el usuario y token de  
-                    // la respuesta que retorna el endpoint de login                 
-                    let datos = { 
-                        usuario: response.data.data.name, 
-                        rol: response.data.data.rol, 
-                        token: response.data.token 
-                    } 
-                    // Guardando datos en el storage y el state 
-                    this.$store.dispatch('login', datos) 
-                     
-                    // Redireccionando a la pantalla de bienvenida 
-                    this.$router.push('/welcome') 
-                }                 
-            }) 
-            .catch(error => { 
-                console.log('Ha ocurrido un error '+error) 
-                this.alertaEstado = true   
-                // Usuario no autorizado                 
-                if(error.response.status==401){                                       
-                    this.alertaMensaje = error.response.data.data 
-                } else { 
-                    this.alertaMensaje = '¡Ups! Algo salió mal' 
-                } 
-            }) 
+            axios.post(ruta+'/api/user/login', this.usuario) 
+            .then(response => {
+            // Verificar estructura de respuesta
+            if (!response || !response.data) {
+            throw new Error('Respuesta inválida del servidor');
+            }
+
+            const responseData = response.data;
+            
+            // Validar estructura mínima esperada
+            if (!responseData.token || !responseData.data?.id) {
+            console.error('Estructura de respuesta inesperada:', responseData);
+            throw new Error('Datos de usuario incompletos en la respuesta');
+            }
+
+            // Guardar en store
+            this.$store.dispatch('login', responseData)
+            .then(() => {
+                this.$router.push('/dashboard');
+            })
+            .catch(error => {
+                console.error('Error al guardar sesión:', error);
+                this.error = 'Error al iniciar sesión. Intente nuevamente.';
+            });
+        })
+        .catch(error => {
+            // Manejo mejorado de errores
+            let errorMessage = 'Error al iniciar sesión';
+            
+            if (error.response) {
+            // Error de servidor (4xx, 5xx)
+            errorMessage = error.response.data?.message || 
+                            `Error ${error.response.status}: ${error.response.statusText}`;
+            } else if (error.request) {
+            // No se recibió respuesta
+            errorMessage = 'No se recibió respuesta del servidor';
+            } else {
+            // Error en la configuración de la petición
+            errorMessage = error.message || 'Error al configurar la petición';
+            }
+
+            console.error('Error completo:', error);
+            this.error = errorMessage;
+        });
         } 
     } 
 } 

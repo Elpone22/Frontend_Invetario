@@ -38,14 +38,29 @@ export default createStore({
   actions: {
     // Acción para realizar el login
     login(context, data) {
-      // Llenar variables de estado
-      context.commit('setUsuario', data.usuario);
-      context.commit('setToken', data.token);
-      context.commit('setRol', data.rol); // Guardar el rol en el estado
-
-      // Guardar data en el local storage
-      localStorage.setItem('userData', JSON.stringify(data));
-    },
+      // Asegurar que data.data existe y tiene la estructura correcta
+      const userInfo = data.data || data;
+      
+      if (!userInfo.id) {
+          console.error('Datos de usuario incompletos:', data);
+          throw new Error('La respuesta del login no contiene ID de usuario');
+      }
+  
+      const userData = {
+          usuario: userInfo.usuario || userInfo.name,
+          id: String(userInfo.id), // Convertir a string para consistencia
+          rol: userInfo.rol,
+          token: data.token
+      };
+  
+      console.log('Datos de usuario a guardar:', userData); // Verificación
+      
+      context.commit('setUsuario', userData.usuario);
+      context.commit('setToken', userData.token);
+      context.commit('setRol', userData.rol);
+      
+      localStorage.setItem('userData', JSON.stringify(userData));
+  },
 
     // Acción para realizar el logout
     logout(context) {

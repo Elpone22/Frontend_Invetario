@@ -173,7 +173,7 @@ export default {
     data() {
         return {
             productos: [],
-            movimiento: { fk_productos: '', cantidad: 0, tipoMov: 'Entrada', fecha: '' },
+            movimiento: { fk_productos: '', cantidad: 0, tipoMov: 'Entrada', fecha: '', user_id: '' },
             movimientos: [],
             datos: {},
             filtroProducto: null,
@@ -225,31 +225,41 @@ export default {
         },
 
         agregarMovimiento() {
-            // Validar que todos los campos estén llenos
-            if (!this.movimiento.fk_productos || !this.movimiento.cantidad || !this.movimiento.tipoMov || !this.movimiento.fecha) {
-                this.getAlert("Todos los campos son obligatorios.");
-                return;
+    // ...
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    
+    // Verificación crítica
+    if (!userData || !userData.id) {
+        console.error('Datos de usuario no válidos:', userData);
+        this.getAlert("Error: Sesión no válida. Vuelva a iniciar sesión");
+        return;
+    }
+
+    const movimientoData = {
+        ...this.movimiento,
+        user_id: userData.id // Usar el ID del localStorage
+    };
+
+    console.log('LocalStorage userData:', JSON.parse(localStorage.getItem('userData')));
+    console.log('Datos a enviar:', movimientoData); // Verificar antes de enviar
+    //
+    axios.post(ruta + '/api/movimientos_inventarios', movimientoData, this.config)
+        .then(response => {
+            if (response.data.code === 200) {
+                this.getAlert(response.data.data);
+                this.movimiento = { fk_productos: '', cantidad: 0, tipoMov: 'Entrada', fecha: '', user_id: '' };
+                this.obtenerMovimientos();
             }
-
-            axios.post(ruta + '/api/movimientos_inventarios', this.movimiento, this.config)
-                .then(response => {
-                    if (response.data.code === 200) {
-                        this.getAlert(response.data.data);
-                        this.movimiento = { fk_productos: '', cantidad: 0, tipoMov: 'Entrada', fecha: '' }; // Reiniciar formulario
-                        this.obtenerMovimientos(); // Recargar tabla
-                    }
-                })
-                .catch(error => {
-                    console.log('Ha ocurrido un error: ', error);
-
-                    // Mostrar el mensaje de error específico del backend
-                    if (error.response && error.response.data && error.response.data.data) {
-                        this.getAlert(error.response.data.data); // Mensaje específico del backend
-                    } else {
-                        this.getAlert("No hay suficiente cantidad"); // Mensaje genérico
-                    }
-                });
-        },
+        })
+        .catch(error => {
+            console.log('Ha ocurrido un error: ', error);
+            if (error.response && error.response.data && error.response.data.data) {
+                this.getAlert(error.response.data.data);
+            } else {
+                this.getAlert("No hay suficiente cantidad");
+            }
+        });
+},
 
         obtenerMovimientos() {
             axios.get(ruta + '/api/movimientos_inventarios', this.config)
