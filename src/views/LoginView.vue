@@ -95,7 +95,7 @@ export default {
             // Guardar en store
             this.$store.dispatch('login', responseData)
             .then(() => {
-                this.$router.push('/dashboard');
+                this.$router.push('/welcome');
             })
             .catch(error => {
                 console.error('Error al guardar sesión:', error);

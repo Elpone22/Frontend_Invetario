@@ -4,7 +4,9 @@
     <v-navigation-drawer app v-model="drawer">
       <v-list>
         <v-list-item>
-          <v-list-item-title class="text-h6">VentaXperto</v-list-item-title>
+          <v-list-item-title class="text-h6">
+            Inventario System
+          </v-list-item-title>
         </v-list-item>
         <v-divider></v-divider>
 
