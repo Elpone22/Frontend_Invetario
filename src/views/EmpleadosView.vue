@@ -105,7 +105,7 @@
 import axios from 'axios'
 import Swal from 'sweetalert2'
 
-const ruta = 'http://127.0.0.1:8000' // Asegúrate de que esta URL sea correcta para tu API
+const ruta = 'https://backendinventario-production-0b0f.up.railway.app' // Asegúrate de que esta URL sea correcta para tu API
 
 export default {
     name: 'EmpleadoView',
