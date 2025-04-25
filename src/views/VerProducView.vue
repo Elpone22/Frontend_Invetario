@@ -47,7 +47,7 @@
 <script>
 import axios from 'axios';
 
-const ruta = 'https://backendinventario-production-0b0f.up.railway.app';
+const ruta = 'https://backendinventario-production-0b0f.up.railway.app/';
 
 export default {
     name: 'VerProducView',

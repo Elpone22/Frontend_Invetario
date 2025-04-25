@@ -58,9 +58,10 @@
     <v-dialog v-model="dialogTwo" transition="dialog-top-transition" width="500">
         <v-card title="Editar" subtitle="Datos de la categoría">
             <v-card-text>
-                <v-select color="indigo" label="Nombre" :items="categorias"
-                item-value="id" item-title="nombre" v-model="datos.nombre"
-                ></v-select>
+                <v-text-field label="Nombre" maxlength="50" counter
+                color="indigo" clearable placeholder="Nombre de la categoría" 
+                v-model="datos.nombre"
+                ></v-text-field>
                 <v-btn prepend-icon="mdi-check" color="indigo" block
                 @click="modificarCategoria(datos.id)">Guardar</v-btn>
             </v-card-text>
