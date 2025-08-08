@@ -3,7 +3,7 @@
         <h1>Productos</h1>
         <v-row>
             <v-col cols="12" xs="12" sm="12" md="12" lg="12" xl="12" xxl="12">
-                <v-btn color="primary" @click="dialogProducto = true">Agregar Producto</v-btn>
+                <v-btn color="indigo" @click="dialogProducto = true">Agregar Producto</v-btn>
             </v-col>
         </v-row>
         <v-row>
@@ -48,7 +48,7 @@
                                 <th>{{ producto.nombre }}</th>
                                 <th>{{ producto.cantidad }}</th>
                                 <th>{{ producto.descripcion }}</th>
-                                <th>{{ producto.precio }}</th>
+                                <th>${{ producto.precio }}</th>
                                 <th>{{ producto.marca }}</th>
                                 <th>{{ producto.categoria }}</th>
                                 <th>
@@ -382,7 +382,7 @@
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
-const ruta = 'https://backendinventario-production-0b0f.up.railway.app';
+const ruta = 'http://18.188.139.146';
 
 export default {
     name: 'ProductoView',
@@ -595,3 +595,4 @@ export default {
     color: white !important;
 }
 </style>
+

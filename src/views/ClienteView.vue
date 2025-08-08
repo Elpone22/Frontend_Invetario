@@ -88,7 +88,7 @@
 <script>
 import axios from 'axios'
 import Swal from 'sweetalert2'//importar la bibliteca
-const ruta ='https://backendinventario-production-0b0f.up.railway.app'
+const ruta ='http://18.188.139.146'
 export default {
     name: 'ClienteView',
     data(){

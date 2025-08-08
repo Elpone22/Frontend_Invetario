@@ -1,83 +1,44 @@
 <template>
   <v-app>
-    <!-- Menú lateral -->
-    <v-navigation-drawer app v-model="drawer">
+    <v-navigation-drawer v-model="drawer" app>
       <v-list>
         <v-list-item>
-          <v-list-item-title class="text-h6">
-            Inventario System
-          </v-list-item-title>
+          <v-list-item-content>
+            <v-list-item-title class="text-h6">Inventario</v-list-item-title>
+            <v-list-item-subtitle v-if="usuario">Bienvenido, {{ usuario }}</v-list-item-subtitle>
+          </v-list-item-content>
         </v-list-item>
         <v-divider></v-divider>
-
-        <!-- Si el usuario NO está logueado -->
-        <template v-if="!usuario">
-          <v-list-item to="/">
-            <v-list-item-icon><v-icon>mdi-login</v-icon></v-list-item-icon>
-            <v-list-item-title>Login</v-list-item-title>
-          </v-list-item>
+        <!-- Menú para admin -->
+        <template v-if="rol === 'admin'">
+          <v-list-item link to="/welcome" title="Inicio" prepend-icon="mdi-home" />
+          <v-list-item link to="/users" title="Usuarios" prepend-icon="mdi-account-group" />
+          <v-list-item link to="/cliente" title="Clientes" prepend-icon="mdi-account" />
+          <v-list-item link to="/empleados" title="Empleados" prepend-icon="mdi-account-tie" />
+          <v-list-item link to="/marca" title="Marcas" prepend-icon="mdi-factory" />
+          <v-list-item link to="/categoria" title="Categorías" prepend-icon="mdi-tag" />
+          <v-list-item link to="/producto" title="Productos" prepend-icon="mdi-package-variant" />
+          <v-list-item link to="/Ver" title="Ver Productos" prepend-icon="mdi-eye" />
+          <v-list-item link to="/Movimientos" title="Movimientos" prepend-icon="mdi-swap-horizontal" />
+          <v-list-item link to="/reportes/movimientos" title="Reportes" prepend-icon="mdi-chart-bar" />
         </template>
-
-        <!-- Si el usuario ESTÁ logueado -->
-        <template v-if="usuario">
-          <v-list-item to="/welcome">
-            <v-list-item-icon><v-icon>mdi-home</v-icon></v-list-item-icon>
-            <v-list-item-title>Inicio</v-list-item-title>
-          </v-list-item>
-
-          <!-- Menú para administradores -->
-          <template v-if="$store.getters.getRol === 'admin'">
-            <v-list-group value="Gestión">
-              <template #activator="{ props }">
-                <v-list-item v-bind="props">
-                  <v-list-item-icon><v-icon>mdi-folder</v-icon></v-list-item-icon>
-                  <v-list-item-title>Gestión</v-list-item-title>
-                </v-list-item>
-              </template>
-              <v-list-item to="/marca">
-                <v-list-item-title>Marca</v-list-item-title>
-              </v-list-item>
-              <v-list-item to="/categoria">
-                <v-list-item-title>Categoría</v-list-item-title>
-              </v-list-item>
-              <v-list-item to="/empleados">
-                <v-list-item-title>Empleados</v-list-item-title>
-              </v-list-item>
-              <v-list-item to="/producto">
-                <v-list-item-title>Producto</v-list-item-title>
-              </v-list-item>
-              <v-list-item to="/users">
-                <v-list-item-title>Usuarios</v-list-item-title>
-              </v-list-item>
-            </v-list-group>
-          </template>
-
-          <!-- Menú para todos los usuarios -->
-          <v-list-item to="/Ver">
-            <v-list-item-icon><v-icon>mdi-eye</v-icon></v-list-item-icon>
-            <v-list-item-title>Ver Productos</v-list-item-title>
-          </v-list-item>
-
-          <v-list-item to="/Movimientos">
-            <v-list-item-icon><v-icon>mdi-transfer</v-icon></v-list-item-icon>
-            <v-list-item-title>Movimientos</v-list-item-title>
-          </v-list-item>
-
-          <!-- Botón de Logout -->
-          <v-list-item @click="logout">
-            <v-list-item-icon><v-icon>mdi-logout</v-icon></v-list-item-icon>
-            <v-list-item-title>Logout</v-list-item-title>
-          </v-list-item>
+        <!-- Menú para empleado -->
+        <template v-else-if="rol === 'empleado'">
+          <v-list-item link to="/Ver" title="Ver Productos" prepend-icon="mdi-eye" />
+          <v-list-item link to="/Movimientos" title="Movimientos" prepend-icon="mdi-swap-horizontal" />
         </template>
+        <!-- Si no hay usuario, solo login -->
+        <template v-else>
+          <v-list-item link to="/" title="Login" prepend-icon="mdi-login" />
+        </template>
+        <v-divider></v-divider>
+        <v-list-item v-if="usuario" @click="logout" title="Cerrar sesión" prepend-icon="mdi-logout" />
       </v-list>
     </v-navigation-drawer>
-
-    <!-- Barra superior con botón para abrir el menú -->
-    <v-app-bar class="bg-deep-purple-darken-3">
-      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-app-bar-title>VentaXperto</v-app-bar-title>
+    <v-app-bar app color="indigo" dark>
+      <v-app-bar-nav-icon @click="drawer = !drawer" />
+      <v-toolbar-title>Sistema Inventario</v-toolbar-title>
     </v-app-bar>
-
     <v-main>
       <router-view />
     </v-main>
@@ -86,48 +47,37 @@
 
 <script>
 export default {
-  name: "App",
+  name: 'App',
   data() {
     return {
-      drawer: false, // Estado del menú lateral
-    };
+      drawer: false,
+    }
   },
   computed: {
-    // Obtener el usuario del estado global de Vuex
     usuario() {
       return this.$store.getters.getUsuario;
     },
+    rol() {
+      return this.$store.getters.getRol;
+    }
   },
   methods: {
     logout() {
-      this.$store.dispatch("logout");
-      this.$router.push("/");
+      this.$store.dispatch('logout');
+      this.$router.push('/');
     },
-    validarAcceso() {
-      let datos = localStorage.getItem("userData");
-      if (datos) {
-        const userData = JSON.parse(datos);
-        console.log('Datos del localStorage:', userData);
-        this.$store.dispatch("login", userData);
-        this.$router.push("/welcome");
-      } else {
-        this.$router.push("/");
+    restaurarSesion() {
+      const userData = localStorage.getItem('userData');
+      if (userData) {
+        const { usuario, token, rol } = JSON.parse(userData);
+        this.$store.commit('setUsuario', usuario);
+        this.$store.commit('setToken', token);
+        this.$store.commit('setRol', rol);
       }
-    },
+    }
   },
   created() {
-    this.validarAcceso();
-  },
-};
+    this.restaurarSesion();
+  }
+}
 </script>
-
-<style scoped>
-.swal2-confirm {
-    color: white !important;
-    background-color: #6200ea !important;
-}
-.swal2-container {
-  z-index: 9999 !important;
-}
-
-</style>

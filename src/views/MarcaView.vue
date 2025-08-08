@@ -1,79 +1,81 @@
 <template>
-    <v-container fluid>
-        <h1>Marcas</h1>
-        <v-row>
-            <!-- Formulario para agregar marca -->
-            <v-col xs="12" sm="3" md="3" lg="3" xl="3" xxl="3">
-                <v-text-field label="Nombre" maxlength="50" counter
-                color="indigo" clearable placeholder="Nombre de la marca" 
-                v-model="marca.nombre"
-                ></v-text-field>
-                <v-btn prepend-icon="mdi-check" color="indigo" block 
-                @click="agregarMarca">Agregar</v-btn>
-            </v-col>
-            <!-- Tabla para mostrar marcas -->
-            <v-col cols="9" xs="12" sm="9" md="9" lg="9" xl="9" xxl="9">
-                <v-card>
-                    <v-card-text>
-                        <v-table>
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Nombre</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(marca, i) in marcas" :key="i">
-                                    <th>{{ marca.id }}</th>
-                                    <th>{{ marca.nombre }}</th>
-                                    <th>
-                                        <v-btn-group>
-                                            <v-btn icon="mdi-eye" color="indigo" @click="obtenerMarca(marca.id, 1)"></v-btn>
-                                            <v-btn icon="mdi-pencil" color="green" @click="obtenerMarca(marca.id, 2)"></v-btn>
-                                            <v-btn icon="mdi-delete" color="red" @click="eliminarMarca(marca.id)"></v-btn>
-                                        </v-btn-group>
-                                    </th>
-                                </tr>
-                            </tbody>
-                        </v-table>
-                    </v-card-text>
-                </v-card>
-            </v-col>
-        </v-row>
-    </v-container>
+    <div>
+        <v-container fluid>
+            <h1>Marcas</h1>
+            <v-row>
+                <!-- Formulario para agregar marca -->
+                <v-col xs="12" sm="3" md="3" lg="3" xl="3" xxl="3">
+                    <v-text-field label="Nombre" maxlength="50" counter
+                    color="indigo" clearable placeholder="Nombre de la marca" 
+                    v-model="marca.nombre"
+                    ></v-text-field>
+                    <v-btn prepend-icon="mdi-check" color="indigo" block 
+                    @click="agregarMarca">Agregar</v-btn>
+                </v-col>
+                <!-- Tabla para mostrar marcas -->
+                <v-col cols="12" xs="12" sm="9" md="9" lg="9" xl="9" xxl="9">
+                    <v-card>
+                        <v-card-text>
+                            <v-table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(marca, i) in marcas" :key="i">
+                                        <th>{{ marca.id }}</th>
+                                        <th>{{ marca.nombre }}</th>
+                                        <th>
+                                            <v-btn-group>
+                                                <v-btn icon="mdi-eye" color="indigo" @click="obtenerMarca(marca.id, 1)"></v-btn>
+                                                <v-btn icon="mdi-pencil" color="green" @click="obtenerMarca(marca.id, 2)"></v-btn>
+                                                <v-btn icon="mdi-delete" color="red" @click="eliminarMarca(marca.id)"></v-btn>
+                                            </v-btn-group>
+                                        </th>
+                                    </tr>
+                                </tbody>
+                            </v-table>
+                        </v-card-text>
+                    </v-card>
+                </v-col>
+            </v-row>
+        </v-container>
 
-    <!-- Cuadro de diálogo para ver registro -->
-    <v-dialog v-model="dialogOne" transition="dialog-top-transition" width="500">
-        <v-card title="Ver" subtitle="Datos de la marca">
-            <v-card-text>
-                <v-list>
-                    <v-list-item prepend-icon="mdi-label" :title="datos.nombre"></v-list-item>
-                </v-list> 
-            </v-card-text>
-        </v-card>
-    </v-dialog> 
+        <!-- Cuadro de diálogo para ver registro -->
+        <v-dialog v-model="dialogOne" transition="dialog-top-transition" width="500">
+            <v-card title="Ver" subtitle="Datos de la marca">
+                <v-card-text>
+                    <v-list>
+                        <v-list-item prepend-icon="mdi-label" :title="datos.nombre"></v-list-item>
+                    </v-list> 
+                </v-card-text>
+            </v-card>
+        </v-dialog> 
 
-    <!-- Cuadro de diálogo para editar registro -->
-    <v-dialog v-model="dialogTwo" transition="dialog-top-transition" width="500">
-        <v-card title="Editar" subtitle="Datos de la marca">
-            <v-card-text>
-                <v-text-field label="Nombre" maxlength="50" counter
-                color="indigo" clearable placeholder="Nombre de la marca" 
-                v-model="datos.nombre"
-                ></v-text-field>
-                <v-btn prepend-icon="mdi-check" color="indigo" block
-                @click="modificarMarca(datos.id)">Guardar</v-btn>
-            </v-card-text>
-        </v-card>
-    </v-dialog> 
+        <!-- Cuadro de diálogo para editar registro -->
+        <v-dialog v-model="dialogTwo" transition="dialog-top-transition" width="500">
+            <v-card title="Editar" subtitle="Datos de la marca">
+                <v-card-text>
+                    <v-text-field label="Nombre" maxlength="50" counter
+                    color="indigo" clearable placeholder="Nombre de la marca" 
+                    v-model="datos.nombre"
+                    ></v-text-field>
+                    <v-btn prepend-icon="mdi-check" color="indigo" block
+                    @click="modificarMarca(datos.id)">Guardar</v-btn>
+                </v-card-text>
+            </v-card>
+        </v-dialog> 
+    </div>
 </template>
 
 <script>
 import axios from 'axios'
 import Swal from 'sweetalert2'
 
-const ruta = 'https://backendinventario-production-0b0f.up.railway.app'
+const ruta = 'http://18.188.139.146'
 
 export default {
     name: 'MarcaView',

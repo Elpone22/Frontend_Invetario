@@ -5,11 +5,15 @@
             <!-- Formulario para agregar movimiento -->
             <v-col xs="12" sm="3" md="3" lg="3" xl="3" xxl="3">
                 <!-- Selector de Producto -->
-                <v-select color="indigo" label="Producto" 
-                    :items="productos" item-value="id" item-title="nombre" 
+                <v-autocomplete
                     v-model="movimiento.fk_productos"
-                    :item-props="item => ({ title: item.nombre })"
-                ></v-select>
+                    :items="productos"
+                    item-title="nombre"
+                    item-value="id"
+                    label="Selecciona un producto"
+                    clearable
+                    density="compact"
+                ></v-autocomplete>
 
                 <v-text-field label="Cantidad" type="number"
                     color="indigo" clearable placeholder="Cantidad" 
@@ -31,7 +35,7 @@
             </v-col>
             
             <!-- Tabla para mostrar movimientos -->
-            <v-col cols="9" xs="12" sm="9" md="9" lg="9" xl="9" xxl="9">
+            <v-col cols="12" xs="12" sm="9" md="9" lg="9" xl="9" xxl="9">
                 <v-card>
                     <v-card-text>
                          <!-- Filtros -->
@@ -116,7 +120,7 @@
                 </v-card>
             </v-col>
         </v-row>
-    </v-container>
+
 
     <!-- Cuadro de diálogo para ver registro -->
     <v-dialog v-model="dialogOne" transition="dialog-top-transition" width="500">
@@ -160,13 +164,14 @@
             </v-card-text>
         </v-card>
     </v-dialog> 
+    </v-container>
 </template>
 
 <script>
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
-const ruta = 'https://backendinventario-production-0b0f.up.railway.app';
+const ruta = 'http://18.188.139.146';
 
 export default {
     name: 'MovimientosView',

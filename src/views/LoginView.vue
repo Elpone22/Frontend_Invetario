@@ -57,7 +57,7 @@
  
 <script> 
 // Importar axios 
-const ruta = 'https://backendinventario-production-0b0f.up.railway.app';
+const ruta = 'http://18.188.139.146';
 import axios from 'axios' 
  
 export default { 

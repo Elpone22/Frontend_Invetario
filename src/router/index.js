@@ -10,6 +10,8 @@ import UsersView from '@/views/UsersView.vue'
 import EmpleadosView from '@/views/EmpleadosView.vue'
 import MoviminetosView from '@/views/MoviminetosView.vue'
 import VerProducView from '@/views/VerProducView.vue'
+import ReporteMovimientos from '@/components/reportes/ReporteMovimientos.vue'
+import ReporteMovimientosDetallado from '@/components/reportes/ReporteMovimientosDetallado.vue'
 
 const routes = [
   { 
@@ -41,6 +43,21 @@ const routes = [
     path: '/producto',
     name: 'producto',
     component: ProductoView
+  },
+  {
+    path: '/verproducto',
+    name: 'verproducto',
+    component: VerProducView
+  },
+  {
+    path: '/reportes/movimientos',
+    name: 'reporte-movimientos',
+    component: ReporteMovimientos
+  },
+  {
+    path: '/reportes/movimientos-detallado',
+    name: 'reporte-movimientos-detallado',
+    component: ReporteMovimientosDetallado
   },
   {
     path: '/users',

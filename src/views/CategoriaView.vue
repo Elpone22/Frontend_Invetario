@@ -12,7 +12,7 @@
                 @click="agregarCategoria">Agregar</v-btn>
             </v-col>
             <!-- Tabla para mostrar categorías -->
-            <v-col cols="9" xs="12" sm="9" md="9" lg="9" xl="9" xxl="9">
+            <v-col cols="12" xs="12" sm="9" md="9" lg="9" xl="9" xxl="9">
                 <v-card>
                     <v-card-text>
                         <v-table>
@@ -73,7 +73,7 @@
 import axios from 'axios'
 import Swal from 'sweetalert2'
 
-const ruta = 'https://backendinventario-production-0b0f.up.railway.app'
+const ruta = 'http://18.188.139.146'
 
 export default {
     name: 'CategoriaView',
@@ -184,3 +184,4 @@ export default {
     color: white !important;
 }
 </style>
+
